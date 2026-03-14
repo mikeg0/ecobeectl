@@ -1,0 +1,15 @@
+{
+  "count": 2,
+  "devices": [
+    {
+      "identifier": "123456789012",
+      "name": "Main House",
+      "type": "thermostat"
+    },
+    {
+      "identifier": "switch-1",
+      "name": "Hallway Switch",
+      "type": "lightSwitch"
+    }
+  ]
+}

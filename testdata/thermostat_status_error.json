@@ -1,0 +1,7 @@
+{
+  "thermostatList": [],
+  "status": {
+    "code": 14,
+    "message": "Selection invalid"
+  }
+}

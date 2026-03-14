@@ -1,0 +1,14 @@
+{
+  "data": {
+    "homes": [
+      {
+        "id": "home-1",
+        "name": "Main House",
+        "permissions": ["owner"]
+      }
+    ],
+    "unassigned": {
+      "thermostats": []
+    }
+  }
+}

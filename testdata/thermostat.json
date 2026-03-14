@@ -1,0 +1,103 @@
+{
+  "page": {
+    "page": 1,
+    "totalPages": 1
+  },
+  "thermostatList": [
+    {
+      "identifier": "123456789012",
+      "name": "Main House",
+      "modelNumber": "ecobee4",
+      "thermostatRev": "1:2",
+      "thermostatTime": "2026-03-14 12:00:00",
+      "utcTime": "2026-03-14 18:00:00",
+      "runtime": {
+        "connected": true,
+        "actualTemperature": 705,
+        "actualHumidity": 42,
+        "desiredHeat": 680,
+        "desiredCool": 745,
+        "desiredFanMode": "auto",
+        "actualVOC": 0,
+        "actualCO2": 500,
+        "actualAQScore": 97
+      },
+      "settings": {
+        "hvacMode": "heat",
+        "fanMinOnTime": 0,
+        "heatCoolMinDelta": 20,
+        "coolStages": 1,
+        "heatStages": 1,
+        "useCelsius": false,
+        "humidity": "auto",
+        "holdAction": "useEndTime4hour"
+      },
+      "events": [
+        {
+          "type": "hold",
+          "name": "Home",
+          "running": true,
+          "holdClimateRef": "home",
+          "coolHoldTemp": 745,
+          "heatHoldTemp": 680,
+          "fan": "auto",
+          "holdType": "indefinite",
+          "isIndefinite": true,
+          "startDate": "2026-03-14",
+          "endDate": ""
+        }
+      ],
+      "program": {
+        "schedule": [
+          ["sleep", "sleep", "home", "home"],
+          ["sleep", "sleep", "home", "home"]
+        ],
+        "climates": [
+          {"name": "Home", "climateRef": "home", "coolTemp": 745, "heatTemp": 680, "isOccupied": true},
+          {"name": "Sleep", "climateRef": "sleep", "coolTemp": 730, "heatTemp": 660, "isOccupied": true}
+        ],
+        "currentClimateRef": "home"
+      },
+      "weather": {
+        "forecasts": [
+          {
+            "weatherSymbol": 1,
+            "dateTime": "2026-03-14 13:00:00",
+            "condition": "Sunny",
+            "temperature": 700,
+            "relativeHumidity": 30,
+            "windSpeed": 5,
+            "tempHigh": 740,
+            "tempLow": 600,
+            "pressure": 30,
+            "pop": 0
+          }
+        ]
+      },
+      "remoteSensors": [
+        {
+          "id": "rs:1",
+          "name": "Bedroom",
+          "type": "ecobee3_remote_sensor",
+          "inUse": true,
+          "capability": [
+            {"id": "1", "type": "temperature", "value": "700"},
+            {"id": "2", "type": "occupancy", "value": "true"}
+          ]
+        }
+      ],
+      "alerts": [
+        {
+          "ackRequired": false,
+          "date": "2026-03-14",
+          "text": "Filter reminder",
+          "type": "reminder"
+        }
+      ]
+    }
+  ],
+  "status": {
+    "code": 0,
+    "message": ""
+  }
+}

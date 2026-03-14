@@ -1,0 +1,11 @@
+{
+  "user": {
+    "email": "user@example.com",
+    "firstName": "Eco",
+    "lastName": "Bee"
+  },
+  "status": {
+    "code": 0,
+    "message": ""
+  }
+}

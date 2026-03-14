@@ -1,0 +1,28 @@
+version: 2
+
+project_name: ecobeectl
+
+builds:
+  - id: ecobeectl
+    main: ./cmd/ecobeectl
+    binary: ecobeectl
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+      - -X github.com/mikeg/ecobeectl/internal/cmd.version={{ .Version }}
+      - -X github.com/mikeg/ecobeectl/internal/cmd.commit={{ .Commit }}
+      - -X github.com/mikeg/ecobeectl/internal/cmd.date={{ .Date }}
+
+archives:
+  - formats: ["tar.gz"]
+    format_overrides:
+      - goos: windows
+        formats: ["zip"]
