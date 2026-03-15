@@ -1,4 +1,4 @@
-# ecobeectl
+# 🌡️ ecobeectl - Control your thermostat, from the terminal
 
 `ecobeectl` is a Go CLI for reading and controlling ecobee thermostats through the same cloud APIs used by the ecobee consumer portal.
 

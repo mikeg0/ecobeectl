@@ -132,9 +132,6 @@ func TestEnsureThermostatIDUsesHomesDiscovery(t *testing.T) {
 		case "/graphql":
 			w.Header().Set("Content-Type", "application/json")
 			w.Write([]byte(`{"data":{"homes":[{"devices":{"thermostats":[{"id":"531668456552"}],"lightSwitches":[]}}],"unassigned":{"thermostats":[],"lightSwitches":[]}}}`))
-		case "/ea/devices/ls":
-			w.Header().Set("Content-Type", "application/json")
-			w.Write([]byte(`{"count":0,"devices":[]}`))
 		default:
 			t.Fatalf("unexpected path %s", r.URL.Path)
 		}
