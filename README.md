@@ -165,6 +165,19 @@ Defaults to the last 7 days if `--start` and `--end` are omitted.
 | `--start <date>` | Report start date (`YYYY-MM-DD`) |
 | `--end <date>` | Report end date (`YYYY-MM-DD`) |
 
+#### `air-quality` - Show air quality over time
+
+```bash
+ecobeectl air-quality --start 2026-04-16 --end 2026-04-23
+```
+
+Pulls the ecobee runtime report at 5-minute intervals and returns the `airQuality` score, accuracy, `co2PPM`, `vocPPB`, and `airPressure` columns. Defaults to the last 7 days if `--start` and `--end` are omitted. Thermostats without an air quality sensor will return empty values.
+
+| Flag | Description |
+|------|-------------|
+| `--start <date>` | Report start date (`YYYY-MM-DD`) |
+| `--end <date>` | Report end date (`YYYY-MM-DD`) |
+
 ### Account
 
 #### `whoami` - Show user account information

@@ -254,6 +254,57 @@ func newEnergyCmd() *cobra.Command {
 	return cmd
 }
 
+func newAirQualityCmd() *cobra.Command {
+	var startDate string
+	var endDate string
+	cmd := &cobra.Command{
+		Use:   "air-quality",
+		Short: "Show air quality runtime report",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client, err := buildClient(cmd, true)
+			if err != nil {
+				return err
+			}
+			if startDate == "" || endDate == "" {
+				now := time.Now().In(nowInConfiguredLocation())
+				if endDate == "" {
+					endDate = now.Format("2006-01-02")
+				}
+				if startDate == "" {
+					startDate = now.AddDate(0, 0, -7).Format("2006-01-02")
+				}
+			}
+			ctx, cancel := contextWithTimeout()
+			defer cancel()
+			samples, err := client.GetAirQualityReport(ctx, startDate, endDate)
+			if err != nil {
+				return err
+			}
+			rows := make([]map[string]any, 0, len(samples))
+			for _, sample := range samples {
+				name := sample.SensorName
+				if name == "" {
+					name = sample.SensorID
+				}
+				rows = append(rows, map[string]any{
+					"date":         sample.Date,
+					"time":         sample.Time,
+					"sensor":       name,
+					"air_quality":  sample.Values["airQuality"],
+					"accuracy":     sample.Values["airQualityAccuracy"],
+					"co2_ppm":      sample.Values["co2PPM"],
+					"voc_ppm":      sample.Values["vocPPM"],
+					"air_pressure": sample.Values["airPressure"],
+				})
+			}
+			return render(cmd, []string{"date", "time", "sensor", "air_quality", "accuracy", "co2_ppm", "voc_ppm", "air_pressure"}, rows)
+		},
+	}
+	cmd.Flags().StringVar(&startDate, "start", "", "report start date (YYYY-MM-DD)")
+	cmd.Flags().StringVar(&endDate, "end", "", "report end date (YYYY-MM-DD)")
+	return cmd
+}
+
 func newWhoamiCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "whoami",

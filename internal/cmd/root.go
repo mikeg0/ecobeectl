@@ -81,6 +81,7 @@ func newRootCmd() *cobra.Command {
 		newDevicesCmd(),
 		newHomesCmd(),
 		newEnergyCmd(),
+		newAirQualityCmd(),
 		newWhoamiCmd(),
 		newLogoutCmd(),
 		newVersionCmd(),
