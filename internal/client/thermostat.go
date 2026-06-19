@@ -59,7 +59,9 @@ type Event struct {
 	HoldType       string `json:"holdType"`
 	IsIndefinite   bool   `json:"isIndefinite"`
 	StartDate      string `json:"startDate"`
+	StartTime      string `json:"startTime"`
 	EndDate        string `json:"endDate"`
+	EndTime        string `json:"endTime"`
 }
 
 type Program struct {

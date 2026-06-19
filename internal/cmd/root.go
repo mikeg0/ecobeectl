@@ -77,6 +77,7 @@ func newRootCmd() *cobra.Command {
 		newWeatherCmd(),
 		newSensorsCmd(),
 		newScheduleCmd(),
+		newEventsCmd(),
 		newAlertsCmd(),
 		newDevicesCmd(),
 		newHomesCmd(),

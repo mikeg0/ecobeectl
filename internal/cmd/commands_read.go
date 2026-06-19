@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+
+	ecoclient "github.com/mikeg/ecobeectl/internal/client"
 )
 
 func newWeatherCmd() *cobra.Command {
@@ -128,6 +130,49 @@ func newScheduleCmd() *cobra.Command {
 			return render(cmd, []string{"day", "time", "climate_ref", "current"}, rows)
 		},
 	}
+}
+
+func newEventsCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "events",
+		Short: "Show thermostat events (holds, vacations, demand response)",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client, err := buildClient(cmd, true)
+			if err != nil {
+				return err
+			}
+			ctx, cancel := contextWithTimeout()
+			defer cancel()
+			t, err := client.GetThermostat(ctx, "events")
+			if err != nil {
+				return err
+			}
+			return render(cmd, eventHeaders, eventRows(t))
+		},
+	}
+}
+
+var eventHeaders = []string{"type", "name", "running", "hold_climate_ref", "hold_type", "is_indefinite", "heat", "cool", "fan", "start", "end"}
+
+func eventRows(t *ecoclient.Thermostat) []map[string]any {
+	rows := make([]map[string]any, 0, len(t.Events))
+	for i := range t.Events {
+		event := t.Events[i]
+		rows = append(rows, map[string]any{
+			"type":             event.Type,
+			"name":             event.Name,
+			"running":          event.Running,
+			"hold_climate_ref": event.HoldClimateRef,
+			"hold_type":        holdTypeLabel(&event),
+			"is_indefinite":    event.IsIndefinite,
+			"heat":             displayTemp(event.HeatHoldTemp),
+			"cool":             displayTemp(event.CoolHoldTemp),
+			"fan":              event.Fan,
+			"start":            strings.TrimSpace(event.StartDate + " " + event.StartTime),
+			"end":              strings.TrimSpace(event.EndDate + " " + event.EndTime),
+		})
+	}
+	return rows
 }
 
 func newAlertsCmd() *cobra.Command {

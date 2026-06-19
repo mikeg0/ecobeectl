@@ -40,24 +40,55 @@ func displayForecastTemp(t int) string {
 	return displayTemp(t)
 }
 
+func activeHoldEvent(t *ecoclient.Thermostat) *ecoclient.Event {
+	for i := range t.Events {
+		if t.Events[i].Running {
+			return &t.Events[i]
+		}
+	}
+	return nil
+}
+
 func activeHoldStatus(t *ecoclient.Thermostat) string {
-	for _, event := range t.Events {
-		if event.Running {
-			if event.HoldClimateRef != "" {
-				return event.HoldClimateRef
-			}
-			if event.Name != "" {
-				return event.Name
-			}
-			if event.Type != "" {
-				return event.Type
-			}
+	if event := activeHoldEvent(t); event != nil {
+		if event.HoldClimateRef != "" {
+			return event.HoldClimateRef
+		}
+		if event.Name != "" {
+			return event.Name
+		}
+		if event.Type != "" {
+			return event.Type
 		}
 	}
 	if t.Program.CurrentClimateRef != "" {
 		return t.Program.CurrentClimateRef
 	}
 	return ""
+}
+
+func holdEnds(event *ecoclient.Event) string {
+	if event.IsIndefinite {
+		return "indefinite"
+	}
+	return strings.TrimSpace(event.EndDate + " " + event.EndTime)
+}
+
+// holdTypeLabel reports the hold type without contradicting the hold end. The
+// ecobee API leaves holdType empty on system-generated events (e.g. Time of Use
+// precool/setback), so we infer it from the event state instead of always
+// defaulting to "indefinite" even when a concrete end time is present.
+func holdTypeLabel(event *ecoclient.Event) string {
+	if event.HoldType != "" {
+		return event.HoldType
+	}
+	if event.IsIndefinite {
+		return "indefinite"
+	}
+	if strings.TrimSpace(event.EndDate+" "+event.EndTime) != "" {
+		return "dateTime"
+	}
+	return "indefinite"
 }
 
 func flattenRawRows(raw json.RawMessage) ([]string, []map[string]any, error) {

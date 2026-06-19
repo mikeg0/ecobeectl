@@ -42,7 +42,16 @@ func newStatusCmd() *cobra.Command {
 				"hold":             activeHoldStatus(t),
 				"air_quality":      t.Runtime.ActualAQScore,
 			}
-			return render(cmd, []string{"name", "identifier", "connected", "current_temp", "outside_temp", "current_humidity", "hvac_mode", "desired_heat", "desired_cool", "fan_mode", "hold", "air_quality"}, []map[string]any{row})
+			headers := []string{"name", "identifier", "connected", "current_temp", "outside_temp", "current_humidity", "hvac_mode", "desired_heat", "desired_cool", "fan_mode", "hold"}
+			if event := activeHoldEvent(t); event != nil {
+				row["hold_type"] = holdTypeLabel(event)
+				row["hold_heat"] = displayTemp(event.HeatHoldTemp)
+				row["hold_cool"] = displayTemp(event.CoolHoldTemp)
+				row["hold_ends"] = holdEnds(event)
+				headers = append(headers, "hold_type", "hold_heat", "hold_cool", "hold_ends")
+			}
+			headers = append(headers, "air_quality")
+			return render(cmd, headers, []map[string]any{row})
 		},
 	}
 }
