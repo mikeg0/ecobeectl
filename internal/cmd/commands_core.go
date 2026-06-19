@@ -20,15 +20,20 @@ func newStatusCmd() *cobra.Command {
 			}
 			ctx, cancel := contextWithTimeout()
 			defer cancel()
-			t, err := client.GetThermostat(ctx, "runtime", "settings", "events", "program")
+			t, err := client.GetThermostat(ctx, "runtime", "settings", "events", "program", "weather")
 			if err != nil {
 				return err
+			}
+			outsideTemp := ""
+			if len(t.Weather.Forecasts) > 0 {
+				outsideTemp = displayForecastTemp(t.Weather.Forecasts[0].Temperature)
 			}
 			row := map[string]any{
 				"name":             t.Name,
 				"identifier":       t.Identifier,
 				"connected":        t.Runtime.Connected,
 				"current_temp":     displayTemp(t.Runtime.ActualTemperature),
+				"outside_temp":     outsideTemp,
 				"current_humidity": fmt.Sprintf("%d%%", t.Runtime.ActualHumidity),
 				"hvac_mode":        t.Settings.HvacMode,
 				"desired_heat":     displayTemp(t.Runtime.DesiredHeat),
@@ -37,7 +42,7 @@ func newStatusCmd() *cobra.Command {
 				"hold":             activeHoldStatus(t),
 				"air_quality":      t.Runtime.ActualAQScore,
 			}
-			return render(cmd, []string{"name", "identifier", "connected", "current_temp", "current_humidity", "hvac_mode", "desired_heat", "desired_cool", "fan_mode", "hold", "air_quality"}, []map[string]any{row})
+			return render(cmd, []string{"name", "identifier", "connected", "current_temp", "outside_temp", "current_humidity", "hvac_mode", "desired_heat", "desired_cool", "fan_mode", "hold", "air_quality"}, []map[string]any{row})
 		},
 	}
 }
