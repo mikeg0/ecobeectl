@@ -64,6 +64,8 @@ These flags are available on every command:
 ecobeectl status
 ```
 
+When a hold is active, the output adds `hold_type`, `hold_heat`, `hold_cool`, and `hold_ends` columns showing the held setpoints and when the hold expires (`indefinite` if it has no end).
+
 #### `mode` - Set HVAC mode
 
 ```bash
@@ -133,6 +135,14 @@ ecobeectl sensors
 ```bash
 ecobeectl schedule
 ```
+
+#### `events` - Show thermostat events
+
+```bash
+ecobeectl events
+```
+
+Lists every event ecobee has stacked on the thermostat — manual holds, vacations, occupancy automation, and eco+ Time of Use precool/setback events — with the `type`, `name`, `running` flag, setpoints, and start/end times. Use it to see what actually set the active hold reported by `status` (e.g. a `touPrecool` event named `prc150000`), since `status` only shows the highest-priority running event.
 
 #### `alerts` - Show thermostat alerts
 
