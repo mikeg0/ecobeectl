@@ -338,11 +338,11 @@ func newAirQualityCmd() *cobra.Command {
 					"air_quality":  sample.Values["airQuality"],
 					"accuracy":     sample.Values["airQualityAccuracy"],
 					"co2_ppm":      sample.Values["co2PPM"],
-					"voc_ppm":      sample.Values["vocPPM"],
+					"voc_ppb":      sample.Values["vocPPM"],
 					"air_pressure": sample.Values["airPressure"],
 				})
 			}
-			return render(cmd, []string{"date", "time", "sensor", "air_quality", "accuracy", "co2_ppm", "voc_ppm", "air_pressure"}, rows)
+			return render(cmd, []string{"date", "time", "sensor", "air_quality", "accuracy", "co2_ppm", "voc_ppb", "air_pressure"}, rows)
 		},
 	}
 	cmd.Flags().StringVar(&startDate, "start", "", "report start date (YYYY-MM-DD)")

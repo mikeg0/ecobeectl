@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/url"
 	"strings"
+	"time"
 )
 
 type runtimeReportResponse struct {
@@ -68,14 +69,30 @@ func (c *Client) GetAirQualityReport(ctx context.Context, startDate, endDate str
 		}
 	}
 
+	// ecobee interprets the runtimeReport startDate/endDate as UTC but stamps the
+	// returned rows in the thermostat's local time. For a thermostat west of UTC
+	// that means a request for [start, end] leads with rows from the day before
+	// `start` (UTC midnight falls on the previous local evening) and is missing
+	// the late hours of `end`. Widen the request by a day on each side so the full
+	// local range is covered, then trim the rows back to the requested dates below.
+	const dateLayout = "2006-01-02"
+	reqStart, reqEnd := startDate, endDate
+	startParsed, errStart := time.Parse(dateLayout, startDate)
+	endParsed, errEnd := time.Parse(dateLayout, endDate)
+	rangeKnown := errStart == nil && errEnd == nil
+	if rangeKnown {
+		reqStart = startParsed.AddDate(0, 0, -1).Format(dateLayout)
+		reqEnd = endParsed.AddDate(0, 0, 1).Format(dateLayout)
+	}
+
 	query := url.Values{}
 	payload := map[string]any{
 		"selection": map[string]any{
 			"selectionType":  "thermostats",
 			"selectionMatch": c.ThermostatID,
 		},
-		"startDate":      startDate,
-		"endDate":        endDate,
+		"startDate":      reqStart,
+		"endDate":        reqEnd,
 		"columns":        "hvacMode",
 		"includeSensors": true,
 	}
@@ -147,6 +164,18 @@ func (c *Client) GetAirQualityReport(ctx context.Context, startDate, endDate str
 				samples = append(samples, *s)
 			}
 		}
+	}
+
+	// Trim the widened request back to the local dates the caller asked for.
+	// Row dates are zero-padded "YYYY-MM-DD", so lexical comparison is correct.
+	if rangeKnown {
+		filtered := samples[:0]
+		for _, s := range samples {
+			if s.Date >= startDate && s.Date <= endDate {
+				filtered = append(filtered, s)
+			}
+		}
+		samples = filtered
 	}
 	return samples, nil
 }

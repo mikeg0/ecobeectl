@@ -181,7 +181,11 @@ Defaults to the last 7 days if `--start` and `--end` are omitted.
 ecobeectl air-quality --start 2026-04-16 --end 2026-04-23
 ```
 
-Pulls the ecobee runtime report at 5-minute intervals and returns the `airQuality` score, accuracy, `co2PPM`, `vocPPB`, and `airPressure` columns. Defaults to the last 7 days if `--start` and `--end` are omitted. Thermostats without an air quality sensor will return empty values.
+Pulls the ecobee runtime report at 5-minute intervals and returns the `air_quality` score, `accuracy`, `co2_ppm`, `voc_ppb`, and `air_pressure` columns. These readings come directly from the thermostat's own air quality sensor (not a weather service). Defaults to the last 7 days if `--start` and `--end` are omitted. Thermostats without an air quality sensor will return empty values.
+
+> **Note on units:** CO₂ is reported in parts per million (`co2_ppm`). VOC values come from the ecobee API's `vocPPM` capability, but the underlying readings are actually in parts per **billion**, so the column is labelled `voc_ppb`. The `air_quality` score is a relative 0–100 index (higher is cleaner), not a concentration.
+
+> **Note on dates:** `--start`/`--end` are treated as local-time dates. The ecobee runtime report interprets its date range as UTC but stamps each row in the thermostat's local time, so `ecobeectl` requests an extra day on each side and trims the result back to the dates you asked for. Without this you'd see rows from the day before `--start` (and miss the end of `--end`).
 
 | Flag | Description |
 |------|-------------|

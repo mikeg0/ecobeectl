@@ -289,6 +289,64 @@ func mustParseTemp(t *testing.T, value string, useCelsius bool) int {
 	return got
 }
 
+func TestGetAirQualityReportWidensAndFiltersDateRange(t *testing.T) {
+	var gotStart, gotEnd string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/1/thermostat":
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"status":{"code":0,"message":""},"thermostatList":[{"identifier":"123456789012","remoteSensors":[{"id":"rs1","name":"Office","type":"thermostat","capability":[{"id":"1","type":"airQuality"},{"id":"2","type":"co2PPM"},{"id":"3","type":"vocPPM"}]}]}]}`))
+		case "/1/runtimeReport":
+			var payload struct {
+				StartDate string `json:"startDate"`
+				EndDate   string `json:"endDate"`
+			}
+			if err := json.Unmarshal([]byte(r.URL.Query().Get("body")), &payload); err != nil {
+				t.Fatal(err)
+			}
+			gotStart, gotEnd = payload.StartDate, payload.EndDate
+			w.Header().Set("Content-Type", "application/json")
+			// Rows are stamped in thermostat-local time and straddle the requested
+			// range: the leading row is the prior local day (the symptom), and the
+			// trailing row spills into the next local day.
+			_, _ = w.Write([]byte(`{"status":{"code":0,"message":""},"sensorList":[{"thermostatIdentifier":"123456789012","columns":["date","time","rs1:1","rs1:2","rs1:3"],"data":[` +
+				`"2026-06-17,23:55:00,40,400,5",` +
+				`"2026-06-18,00:00:00,45,410,6",` +
+				`"2026-06-19,12:00:00,50,420,7",` +
+				`"2026-06-20,00:05:00,55,430,8"` +
+				`]}]}`))
+		default:
+			t.Fatalf("unexpected path %s", r.URL.Path)
+		}
+	}))
+	defer server.Close()
+
+	client := New("user@example.com", "", "123456789012", DefaultClientID, tokencache.New("test", t.TempDir()))
+	client.APIBaseURL = server.URL
+	client.token = "cached"
+	client.tokenExp = time.Now().Add(time.Hour)
+
+	samples, err := client.GetAirQualityReport(context.Background(), "2026-06-18", "2026-06-19")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// The API request is widened by a day on each side to absorb the UTC/local skew.
+	if gotStart != "2026-06-17" || gotEnd != "2026-06-20" {
+		t.Fatalf("request range = [%s, %s], want [2026-06-17, 2026-06-20]", gotStart, gotEnd)
+	}
+
+	// Returned rows are trimmed back to the requested local dates only.
+	if len(samples) != 2 {
+		t.Fatalf("got %d samples, want 2: %+v", len(samples), samples)
+	}
+	for _, s := range samples {
+		if s.Date < "2026-06-18" || s.Date > "2026-06-19" {
+			t.Fatalf("sample outside requested range: %s", s.Date)
+		}
+	}
+}
+
 func mustWriteFixture(t *testing.T, w http.ResponseWriter, name string) {
 	t.Helper()
 	data, err := os.ReadFile(filepath.Join("..", "..", "testdata", name))
