@@ -131,7 +131,7 @@ func TestEnsureThermostatIDUsesHomesDiscovery(t *testing.T) {
 		switch r.URL.Path {
 		case "/graphql":
 			w.Header().Set("Content-Type", "application/json")
-			w.Write([]byte(`{"data":{"homes":[{"devices":{"thermostats":[{"id":"531668456552"}],"lightSwitches":[]}}],"unassigned":{"thermostats":[],"lightSwitches":[]}}}`))
+			_, _ = w.Write([]byte(`{"data":{"homes":[{"devices":{"thermostats":[{"id":"531668456552"}],"lightSwitches":[]}}],"unassigned":{"thermostats":[],"lightSwitches":[]}}}`))
 		default:
 			t.Fatalf("unexpected path %s", r.URL.Path)
 		}
@@ -159,13 +159,13 @@ func TestGetThermostatRetriesWithHomesDiscoveredID(t *testing.T) {
 			thermostatCalls++
 			if strings.Contains(r.URL.RawQuery, "123456789012") {
 				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte(`{"status":{"code":9,"message":"Invalid selection. No thermostats in selection. Ensure permissions and selection."}}`))
+				_, _ = w.Write([]byte(`{"status":{"code":9,"message":"Invalid selection. No thermostats in selection. Ensure permissions and selection."}}`))
 				return
 			}
 			mustWriteFixture(t, w, "thermostat.json")
 		case "/graphql":
 			w.Header().Set("Content-Type", "application/json")
-			w.Write([]byte(`{"data":{"homes":[{"devices":{"thermostats":[{"id":"531668456552"}],"lightSwitches":[]}}],"unassigned":{"thermostats":[],"lightSwitches":[]}}}`))
+			_, _ = w.Write([]byte(`{"data":{"homes":[{"devices":{"thermostats":[{"id":"531668456552"}],"lightSwitches":[]}}],"unassigned":{"thermostats":[],"lightSwitches":[]}}}`))
 		default:
 			t.Fatalf("unexpected path %s", r.URL.Path)
 		}
@@ -214,7 +214,7 @@ func TestSetFanPreservesTempsAndHoldType(t *testing.T) {
 			if err := json.NewDecoder(r.Body).Decode(&posted); err != nil {
 				t.Fatal(err)
 			}
-			w.Write([]byte(`{"status":{"code":0,"message":""}}`))
+			_, _ = w.Write([]byte(`{"status":{"code":0,"message":""}}`))
 		default:
 			t.Fatalf("unexpected method %s", r.Method)
 		}
@@ -245,13 +245,13 @@ func TestClientIDDetectorHomepageAndFallback(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/en-us/":
-			w.Write([]byte(`<a href="https://auth.ecobee.com/authorize?client_id=homepageclient123">Sign in</a>`))
+			_, _ = w.Write([]byte(`<a href="https://auth.ecobee.com/authorize?client_id=homepageclient123">Sign in</a>`))
 		case "/no-homepage":
-			w.Write([]byte(`<html></html>`))
+			_, _ = w.Write([]byte(`<html></html>`))
 		case "/consumerportal/index.html":
-			w.Write([]byte(`<script src="scripts.abc123.js"></script>`))
+			_, _ = w.Write([]byte(`<script src="scripts.abc123.js"></script>`))
 		case "/consumerportal/scripts.abc123.js":
-			w.Write([]byte(`var client_id="bundleclient456";`))
+			_, _ = w.Write([]byte(`var client_id="bundleclient456";`))
 		default:
 			t.Fatalf("unexpected path %s", r.URL.Path)
 		}
@@ -296,5 +296,5 @@ func mustWriteFixture(t *testing.T, w http.ResponseWriter, name string) {
 		t.Fatal(err)
 	}
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(data)
+	_, _ = w.Write(data)
 }

@@ -225,7 +225,7 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 			return err
 		}
 		data, readErr := io.ReadAll(resp.Body)
-		resp.Body.Close()
+		_ = resp.Body.Close()
 		if readErr != nil {
 			return readErr
 		}
@@ -275,7 +275,7 @@ func (c *Client) doGraphQL(ctx context.Context, query string, out any) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode >= 400 {
 		body, _ := io.ReadAll(resp.Body)
 		return fmt.Errorf("graphql returned HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
@@ -394,7 +394,7 @@ func (c *Client) postAuth(ctx context.Context, body map[string]any, out *authRes
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	raw, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
@@ -516,7 +516,7 @@ func detectClientIDFromURL(ctx context.Context, httpClient *http.Client, rawURL 
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
@@ -537,7 +537,7 @@ func detectClientIDFromConsumerPortal(ctx context.Context, httpClient *http.Clie
 	if err != nil {
 		return "", "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	indexBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", "", err
@@ -559,7 +559,7 @@ func detectClientIDFromConsumerPortal(ctx context.Context, httpClient *http.Clie
 	if err != nil {
 		return "", "", err
 	}
-	defer jsResp.Body.Close()
+	defer func() { _ = jsResp.Body.Close() }()
 	jsBody, err := io.ReadAll(jsResp.Body)
 	if err != nil {
 		return "", "", err

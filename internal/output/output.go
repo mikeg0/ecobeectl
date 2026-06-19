@@ -36,9 +36,7 @@ func FilterFields(headers []string, rows []map[string]any, fields []string) ([]s
 	}
 	filteredHeaders := make([]string, 0, len(fields))
 	filteredRows := make([]map[string]any, 0, len(rows))
-	for _, field := range fields {
-		filteredHeaders = append(filteredHeaders, field)
-	}
+	filteredHeaders = append(filteredHeaders, fields...)
 	for _, row := range rows {
 		filtered := map[string]any{}
 		for _, field := range fields {
