@@ -1,7 +1,7 @@
 .PHONY: build fmt lint test install
 
 build:
-	go build -o bin/ecobeectl ./cmd/ecobeectl
+	go build -o ecobeectl ./cmd/ecobeectl
 
 install:
 	go install ./cmd/ecobeectl

@@ -1,5 +1,4 @@
 /ecobeectl
-bin/
 .cache/
 dist/
 coverage.out
